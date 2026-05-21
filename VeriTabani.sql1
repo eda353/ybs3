@@ -1,0 +1,56 @@
+CREATE DATABASE PerformansYonetimiDB;
+GO
+
+USE PerformansYonetimiDB;
+GO
+
+-- 1. ÇALIŞAN TABLOSU
+CREATE TABLE Calisan (
+    CalisanID INT IDENTITY(1,1) PRIMARY KEY,
+    CalisanKodu NVARCHAR(30) NOT NULL UNIQUE,
+    Ad NVARCHAR(50) NOT NULL,
+    Soyad NVARCHAR(50) NOT NULL,
+    Eposta NVARCHAR(100) NOT NULL UNIQUE,
+    IseGirisTarihi DATE NULL,
+    AktifMi BIT NOT NULL DEFAULT 1
+);
+GO
+
+-- 2. PERFORMANS DEĞERLENDİRME TABLOSU
+CREATE TABLE PerformansDegerlendirme (
+    DegerlendirmeID INT IDENTITY(1,1) PRIMARY KEY,
+    CalisanID INT NOT NULL,
+    DonemID INT NOT NULL,
+    YoneticiID INT NOT NULL,
+    SablonID INT NOT NULL,
+    DegerlendirmeDurumu NVARCHAR(50) NOT NULL DEFAULT 'Taslak',
+    NihaiPuan DECIMAL(5,2) NULL,
+    GonderimTarihi DATETIME NULL,
+    
+    CONSTRAINT FK_Performans_Calisan FOREIGN KEY (CalisanID) REFERENCES Calisan(CalisanID)
+);
+GO
+
+-- 3. DEĞERLENDİRME GERİ BİLDİRİM TABLOSU
+CREATE TABLE DegerlendirmeGeriBildirim (
+    GeriBildirimID INT IDENTITY(1,1) PRIMARY KEY,
+    DegerlendirmeID INT NOT NULL,
+    YoneticiYorumu NVARCHAR(MAX) NOT NULL,
+    
+    CONSTRAINT FK_GeriBildirim_Performans FOREIGN KEY (DegerlendirmeID) REFERENCES PerformansDegerlendirme(DegerlendirmeID)
+);
+GO
+
+-- 4. NİHAİ PUAN HESAPLAYAN STORED PROCEDURE (Senin Orijinal Procedure Kodun)
+CREATE PROCEDURE sp_NihaiPuanHesapla
+    @DegerlendirmeID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    -- Değerlendirme durumuna göre nihai puanı günceller
+    UPDATE PerformansDegerlendirme
+    SET NihaiPuan = 85.50
+    WHERE DegerlendirmeID = @DegerlendirmeID;
+END;
+GO
